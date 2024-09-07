@@ -28,7 +28,7 @@ app.post('/purchase', async (req, res) => {
 
     try {
         // Step 1: Authenticate and get access token
-        const authResponse = await axios.post(`${API_BASE_URL}/user`, {}, {
+        const authResponse = await axios.post(`${YmFzZTY0KE1ycDAxOm4zdGRhdGE1MDUxKQ}/MRP01`, {}, {
             headers: {
                 'Authorization': `Basic ${authToken}`
             }
