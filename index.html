@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Purchase</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        select, input[type="text"], input[type="submit"] {
+            padding: 10px;
+            margin-top: 5px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        input[type="submit"] {
+            background-color: #28a745;
+            color: white;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #218838;
+        }
+
+        .response {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Buy Data</h1>
+        <form id="dataForm">
+            <label for="network">Select Network</label>
+            <select id="network" name="network" required>
+                <option value="">--Choose a network--</option>
+                <option value="MTN">MTN</option>
+                <option value="AIRTEL">Airtel</option>
+                <option value="GLO">GLO</option>
+                <option value="9MOBILE">9Mobile</option>
+            </select>
+
+            <label for="dataPlan">Select Data Plan</label>
+            <select id="dataPlan" name="dataPlan" required>
+                <option value="">--Choose a data plan--</option>
+            </select>
+
+            <label for="phoneNumber">Enter Phone Number</label>
+            <input type="text" id="phoneNumber" name="phoneNumber" required placeholder="08012345678">
+
+            <input type="submit" value="Buy Data">
+        </form>
+
+        <div id="response" class="response"></div>
+    </div>
+
+    <script>
+        const dataPlans = {
+            MTN: [
+                { id: '1', name: '500MB - ₦130.00', value: '500MB' },
+                { id: '2', name: '1GB - ₦260.00', value: '1GB' },
+                { id: '3', name: '2GB - ₦520.00', value: '2GB' },
+                { id: '4', name: '3GB - ₦780.00', value: '3GB' },
+                { id: '5', name: '5GB - ₦1,300.00', value: '5GB' }
+            ],
+            AIRTEL: [
+                { id: '1', name: '500MB - ₦140.00', value: '500MB' },
+                { id: '2', name: '1GB - ₦280.00', value: '1GB' }
+            ],
+            GLO: [
+                { id: '1', name: '500MB - ₦120.00', value: '500MB' },
+                { id: '2', name: '1GB - ₦240.00', value: '1GB' }
+            ],
+            '9MOBILE': [
+                { id: '1', name: '500MB - ₦150.00', value: '500MB' },
+                { id: '2', name: '1GB - ₦300.00', value: '1GB' }
+            ]
+        };
+
+        document.getElementById('network').addEventListener('change', function() {
+            const network = this.value;
+            const dataPlanSelect = document.getElementById('dataPlan');
+            dataPlanSelect.innerHTML = '<option value="">--Choose a data plan--</option>';
+
+            if (network && dataPlans[network]) {
+                dataPlans[network].forEach(plan => {
+                    const option = document.createElement('option');
+                    option.value = plan.id;
+                    option.textContent = plan.name;
+                    dataPlanSelect.appendChild(option);
+                });
+            }
+        });
+
+        document.getElementById('dataForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const network = document.getElementById('network').value;
+            const dataPlan = document.getElementById('dataPlan').value;
+            const phoneNumber = document.getElementById('phoneNumber').value;
+
+            if (!network || !dataPlan || !phoneNumber) {
+                displayResponse('Please fill out all fields.', 'error');
+                return;
+            }
+
+            fetch('https://yourappname.railway.app/purchase', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    network,
+                    dataPlan,
+                    phoneNumber
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    displayResponse('Data purchase successful!', 'success');
+                } else {
+                    displayResponse('Failed to purchase data: ' + data.message, 'error');
+                }
+            })
+            .catch(error => {
+                displayResponse('An error occurred: ' + error.message, 'error');
+            });
+        });
+
+        function displayResponse(message, type) {
+            const responseDiv = document.getElementById('response');
+            responseDiv.textContent = message;
+            responseDiv.className = 'response ' + type;
+        }
+    </script>
+</body>
+</html>
